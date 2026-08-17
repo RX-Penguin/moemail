@@ -6,12 +6,19 @@ import PostalMime from 'postal-mime'
 import { WEBHOOK_CONFIG } from '../app/config/webhook'
 import { EmailMessage } from '../app/lib/webhook'
 
+const MAX_STORED_BODY_BYTES = 512_000
+
+const truncateUtf8 = (value: string, maxBytes: number) => {
+  const encoded = new TextEncoder().encode(value)
+  if (encoded.byteLength <= maxBytes) return value
+
+  return new TextDecoder().decode(encoded.slice(0, maxBytes))
+}
+
 const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
   const db = drizzle(env.DB, { schema: { messages, emails, webhooks } })
 
   const parsedMessage = await PostalMime.parse(message.raw)
-
-  console.log("parsedMessage:", parsedMessage)
 
   try {
     const targetEmail = await db.query.emails.findFirst({
@@ -26,9 +33,9 @@ const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
     const savedMessage = await db.insert(messages).values({
       emailId: targetEmail.id,
       fromAddress: message.from,
-      subject: parsedMessage.subject || '(无主题)',
-      content: parsedMessage.text || '',
-      html: parsedMessage.html || '',
+      subject: (parsedMessage.subject || '(无主题)').slice(0, 500),
+      content: truncateUtf8(parsedMessage.text || '', MAX_STORED_BODY_BYTES),
+      html: truncateUtf8(parsedMessage.html || '', MAX_STORED_BODY_BYTES),
       type: 'received',
     }).returning().get()
 
@@ -72,4 +79,4 @@ const worker = {
   }
 }
 
-export default worker 
+export default worker

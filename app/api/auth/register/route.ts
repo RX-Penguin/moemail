@@ -3,9 +3,14 @@ import { register } from "@/lib/auth"
 import { authSchema, AuthSchema } from "@/lib/validation"
 import { verifyTurnstileToken } from "@/lib/turnstile"
 
-export const runtime = "edge"
-
 export async function POST(request: Request) {
+  if (process.env.ENABLE_CREDENTIAL_REGISTRATION !== "true") {
+    return NextResponse.json(
+      { error: "用户名密码注册已关闭" },
+      { status: 403 }
+    )
+  }
+
   try {
     const json = await request.json() as AuthSchema
     

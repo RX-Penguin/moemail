@@ -4,8 +4,6 @@ import { eq } from "drizzle-orm";
 import { ROLES } from "@/lib/permissions";
 import { assignRoleToUser } from "@/lib/auth";
 
-export const runtime = "edge";
-
 export async function POST(request: Request) {
   try {
     const { userId, roleName } = await request.json() as { 

@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.open-next/
 /out/
 
 # production
@@ -51,3 +52,4 @@ public/sw.js
 wrangler.json
 wrangler.cleanup.json
 wrangler.email.json
+cloudflare-env.d.ts
