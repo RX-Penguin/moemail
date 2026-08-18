@@ -18,6 +18,7 @@
     "generate-test-data": "wrangler dev scripts/generate-test-data.ts",
     "dev:cleanup": "wrangler dev --config wrangler.cleanup.json --test-scheduled",
     "test:cleanup": "curl http://localhost:8787/__scheduled",
+    "test:email-receiver": "node --import tsx --test workers/email-receiver.test.ts",
     "deploy:email": "wrangler deploy --config wrangler.email.json",
     "deploy:cleanup": "wrangler deploy --config wrangler.cleanup.json"
   },

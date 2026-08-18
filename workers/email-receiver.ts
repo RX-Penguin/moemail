@@ -8,6 +8,25 @@ import { EmailMessage } from '../app/lib/webhook'
 
 const MAX_STORED_BODY_BYTES = 512_000
 
+export const resolveForwardDestination = (
+  recipient: string,
+  env: Pick<Env, 'FORWARD_TO_EMAIL' | 'FORWARD_EMAILS'>,
+) => {
+  const destination = env.FORWARD_TO_EMAIL?.trim()
+  if (!destination) return null
+
+  const allowedRecipients = new Set(
+    (env.FORWARD_EMAILS || '')
+      .split(',')
+      .map(address => address.trim().toLowerCase())
+      .filter(Boolean),
+  )
+
+  return allowedRecipients.has(recipient.trim().toLowerCase())
+    ? destination
+    : null
+}
+
 const truncateUtf8 = (value: string, maxBytes: number) => {
   const encoded = new TextEncoder().encode(value)
   if (encoded.byteLength <= maxBytes) return value
@@ -38,6 +57,15 @@ const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
       html: truncateUtf8(parsedMessage.html || '', MAX_STORED_BODY_BYTES),
       type: 'received',
     }).returning().get()
+
+    const forwardDestination = resolveForwardDestination(targetEmail.address, env)
+    if (forwardDestination) {
+      try {
+        await message.forward(forwardDestination)
+      } catch (error) {
+        console.error('Failed to forward approved email:', error)
+      }
+    }
 
     const webhook = await db.query.webhooks.findFirst({
       where: eq(webhooks.userId, targetEmail!.userId!)
