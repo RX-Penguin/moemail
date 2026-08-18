@@ -1,12 +1,10 @@
 import { PERMISSIONS, Role, ROLES } from "@/lib/permissions"
-import { getRequestContext } from "@cloudflare/next-on-pages"
+import { getCloudflareContext } from "@opennextjs/cloudflare"
 import { EMAIL_CONFIG } from "@/config"
 import { checkPermission } from "@/lib/auth"
 
-export const runtime = "edge"
-
 export async function GET() {
-  const env = getRequestContext().env
+  const env = getCloudflareContext().env
   const canManageConfig = await checkPermission(PERMISSIONS.MANAGE_CONFIG)
 
   const [
@@ -81,7 +79,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Turnstile 启用时需要提供 Site Key 和 Secret Key" }, { status: 400 })
   }
 
-  const env = getRequestContext().env
+  const env = getCloudflareContext().env
   await Promise.all([
     env.SITE_CONFIG.put("DEFAULT_ROLE", defaultRole),
     env.SITE_CONFIG.put("EMAIL_DOMAINS", emailDomains),

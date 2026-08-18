@@ -5,8 +5,6 @@ import { ROLES, PERMISSIONS } from "@/lib/permissions";
 import { checkPermission } from "@/lib/auth";
 import { getUserId } from "@/lib/apiKey";
 
-export const runtime = "edge";
-
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

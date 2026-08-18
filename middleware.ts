@@ -26,6 +26,12 @@ export async function middleware(request: Request) {
       return NextResponse.next()
     }
 
+    // The login and landing pages need non-sensitive site configuration
+    // before a session exists. The route itself redacts admin-only fields.
+    if (pathname === '/api/config' && request.method === 'GET') {
+      return NextResponse.next()
+    }
+
     request.headers.delete("X-User-Id")
     const apiKey = request.headers.get("X-API-Key")
     if (apiKey) {
@@ -38,10 +44,6 @@ export async function middleware(request: Request) {
         { error: "未授权" },
         { status: 401 }
       )
-    }
-
-    if (pathname === '/api/config' && request.method === 'GET') {
-      return NextResponse.next()
     }
 
     for (const [route, permission] of Object.entries(API_PERMISSIONS)) {

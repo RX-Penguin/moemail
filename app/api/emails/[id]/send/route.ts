@@ -3,10 +3,8 @@ import { getUserId } from "@/lib/apiKey"
 import { createDb } from "@/lib/db"
 import { emails, messages } from "@/lib/schema"
 import { eq } from "drizzle-orm"
-import { getRequestContext } from "@cloudflare/next-on-pages"
+import { getCloudflareContext } from "@opennextjs/cloudflare"
 import { checkSendPermission } from "@/lib/send-permissions"
-
-export const runtime = "edge"
 
 interface SendEmailRequest {
   to: string
@@ -97,7 +95,7 @@ export async function POST(
       )
     }
 
-    const env = getRequestContext().env
+    const env = getCloudflareContext().env
     const apiKey = await env.SITE_CONFIG.get("RESEND_API_KEY")
 
     if (!apiKey) {

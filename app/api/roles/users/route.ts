@@ -4,8 +4,6 @@ import { eq, like, or, sql } from "drizzle-orm"
 import { checkPermission } from "@/lib/auth"
 import { PERMISSIONS, ROLES } from "@/lib/permissions"
 
-export const runtime = "edge"
-
 export async function GET(request: Request) {
   const canPromote = await checkPermission(PERMISSIONS.PROMOTE_USER)
   if (!canPromote) {

@@ -4,12 +4,28 @@ import { roles, userRoles } from "@/lib/schema";
 import { ROLES } from "@/lib/permissions";
 import { eq } from "drizzle-orm";
 
-export const runtime = "edge";
-
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: "未授权" }, { status: 401 });
+  }
+
+  const bootstrapEmail = process.env.BOOTSTRAP_ADMIN_EMAIL?.trim().toLowerCase();
+  const bootstrapUsername = process.env.BOOTSTRAP_ADMIN_USERNAME?.trim().toLowerCase();
+
+  if (!bootstrapEmail && !bootstrapUsername) {
+    return Response.json({ error: "管理员初始化未配置" }, { status: 503 });
+  }
+
+  const sessionEmail = session.user.email?.trim().toLowerCase();
+  const sessionUsername = session.user.username?.trim().toLowerCase();
+  const isBootstrapAdmin = (
+    (bootstrapEmail && sessionEmail === bootstrapEmail) ||
+    (bootstrapUsername && sessionUsername === bootstrapUsername)
+  );
+
+  if (!isBootstrapAdmin) {
+    return Response.json({ error: "禁止初始化管理员" }, { status: 403 });
   }
 
   const db = createDb();
@@ -58,4 +74,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-} 
+}

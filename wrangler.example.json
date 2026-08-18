@@ -1,9 +1,23 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "moemail",
-  "compatibility_date": "2024-03-20",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-17",
   "compatibility_flags": ["nodejs_compat"],
-  "pages_build_output_dir": ".vercel/output/static",
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "${CUSTOM_DOMAIN}",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
   "d1_databases": [
     {
       "binding": "DB",

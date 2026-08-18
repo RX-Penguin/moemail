@@ -7,7 +7,7 @@ const CLEANUP_CONFIG = {
   DELETE_EXPIRED_EMAILS: true,
   
   // Batch processing size
-  BATCH_SIZE: 100,
+  BATCH_SIZE: 1000,
 } as const 
 
 const main = {

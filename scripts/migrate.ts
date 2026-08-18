@@ -28,7 +28,7 @@ async function migrate() {
 
     // Read wrangler.json
     const wranglerPath = join(process.cwd(), 'wrangler.json')
-    let wranglerContent: string
+    let wranglerContent = ''
     
     try {
       wranglerContent = readFileSync(wranglerPath, 'utf-8')
